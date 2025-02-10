@@ -46,8 +46,8 @@ func (s *echoServer) Start() {
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.Logger())
 
-	s.app.GET("v1/health", func(c echo.Context) error {
-		return c.String(200, "OK\n")
+	s.app.GET(ApiPrefix+"/ping", func(c echo.Context) error {
+		return c.String(200, "Pong\n")
 	})
 
 	s.bootHandlers()
