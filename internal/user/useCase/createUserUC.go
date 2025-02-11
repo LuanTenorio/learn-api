@@ -7,16 +7,7 @@ import (
 
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/LuanTenorio/learn-api/internal/user/entity"
-	"github.com/LuanTenorio/learn-api/internal/user/repository"
 )
-
-type userUseCaseImpl struct {
-	userRepository repository.UserRepository
-}
-
-func NewUserUseCaseImpl(ur repository.UserRepository) UserUseCase {
-	return &userUseCaseImpl{userRepository: ur}
-}
 
 func (uc *userUseCaseImpl) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, error) {
 	hashedPassword, err := genHash(userDto.Password)

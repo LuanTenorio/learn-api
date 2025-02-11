@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/LuanTenorio/learn-api/internal/config"
@@ -51,7 +52,17 @@ func (s *echoServer) Start() {
 	})
 
 	s.bootHandlers()
+	showRoutes(s)
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
+}
+
+func showRoutes(e *echoServer) {
+	data, err := json.MarshalIndent(e.app.Routes(), "", "  ")
+	if err != nil {
+		return
+	}
+
+	fmt.Println(string(data))
 }

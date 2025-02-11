@@ -1,7 +1,7 @@
 package requestError
 
 const (
-	IncompatibleBody = "The body is incompatible with the desired"
+	IncompatibleBody = "the body is incompatible with the desired"
 )
 
 type RequestErrorBody struct {

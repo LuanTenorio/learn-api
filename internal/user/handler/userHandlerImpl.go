@@ -7,6 +7,7 @@ import (
 	"github.com/LuanTenorio/learn-api/internal/requestError"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	usecase "github.com/LuanTenorio/learn-api/internal/user/useCase"
+	"github.com/LuanTenorio/learn-api/internal/util"
 	"github.com/labstack/echo/v4"
 )
 
@@ -25,9 +26,7 @@ func NewUserUseCaseImpl(uc usecase.UserUseCase) UserHandler {
 func (h *userHandlerImpl) CreateUser(c echo.Context) error {
 	userDto := new(dto.CreateUserDTO)
 
-	if err := c.Bind(userDto); err != nil {
-		return c.JSON(http.StatusBadRequest, requestError.New(requestError.IncompatibleBody))
-	} else if err := c.Validate(userDto); err != nil {
+	if err := util.BindBody(c, userDto); err != nil {
 		return c.JSON(http.StatusBadRequest, requestError.New(err.Error()))
 	}
 
