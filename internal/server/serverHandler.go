@@ -6,9 +6,14 @@ import (
 	userHandler "github.com/LuanTenorio/learn-api/internal/user/handler"
 	userRepository "github.com/LuanTenorio/learn-api/internal/user/repository"
 	userUseCase "github.com/LuanTenorio/learn-api/internal/user/useCase"
+	"github.com/labstack/echo/v4"
 )
 
 func (s *echoServer) bootHandlers() {
+	s.app.GET(ApiPrefix+"/ping", func(c echo.Context) error {
+		return c.JSON(200, "Pong")
+	})
+
 	userRepo := bootUserHandler(s)
 	bootAuthHandler(s, userRepo)
 }

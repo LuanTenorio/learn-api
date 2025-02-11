@@ -1,5 +1,15 @@
 package auth
 
+import (
+	"github.com/LuanTenorio/learn-api/internal/user/entity"
+	"github.com/golang-jwt/jwt/v5"
+)
+
 var (
 	SecretKey = []byte("2fb14941342165eb3d1dc841e06a3aee5dcac0a18acf5e3c02528d305201a7b622003cd9009f3c2fad0b51ea52e82fb5da4ef6bfc46d80b836e8d677569832c71fd4b3c2a600ab89dc0bf4737a512e5fb5a22e667857ceb8ecdbc7bf0e63c006269edf065d29c80a6b759febc572ab054fbbf3fd230c5f033150c7bc87173e2f727a975517b7712583946728a295bd236dd8d194f8587db2d8e887f98b1f0f8fa99e2cd07fda25e94d8ef9381469bb596290c5840c8f5465d2528a9e9af63c0ed512b520db730bb790d4401359d87a6585c75f6ad2bbb7e8943331b7634cd1dbe918baa891010e8bc9ee8bc7876b774edef6c0c2aa4a56c05b28a05939b2d13b")
 )
+
+type JwtCustomClaims struct {
+	entity.User
+	jwt.RegisteredClaims
+}

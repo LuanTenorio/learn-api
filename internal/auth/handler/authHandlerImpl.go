@@ -28,8 +28,8 @@ func (h *authHandlerImpl) Login(c echo.Context) error {
 	token, err := h.AuthUC.Login(c.Request().Context(), loginDto)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, requestError.New(err.Error()))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, requestError.New(token))
+	return c.JSON(http.StatusOK, echo.Map{"token": token})
 }

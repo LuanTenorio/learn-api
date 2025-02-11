@@ -7,6 +7,7 @@ import (
 
 	"github.com/LuanTenorio/learn-api/internal/auth"
 	"github.com/LuanTenorio/learn-api/internal/auth/dto"
+	userEntity "github.com/LuanTenorio/learn-api/internal/user/entity"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,7 +23,7 @@ func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (s
 		return "", errors.New("wrong password")
 	}
 
-	token, err := createToken(user.Name)
+	token, err := createToken(&userEntity.User{Id: user.Id, Name: user.Name, Email: user.Email})
 
 	if err != nil {
 		return "", err
@@ -35,12 +36,15 @@ func checkPwd(hash string, pwd string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
 }
 
-func createToken(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"username": username,
-			"exp":      time.Now().Add(time.Hour * 24 * 20).Unix(),
-		})
+func createToken(usr *userEntity.User) (string, error) {
+	claims := &auth.JwtCustomClaims{
+		User: *usr,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 15)),
+		},
+	}
 
-	return token.SignedString(auth.SecretKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(auth.SecretKey))
 }

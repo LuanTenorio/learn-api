@@ -1,7 +1,7 @@
 package dto
 
 type UserWithPwdDTO struct {
-	Id       string `json:"id"`
+	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
