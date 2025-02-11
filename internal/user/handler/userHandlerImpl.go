@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/LuanTenorio/learn-api/internal/requestError"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	usecase "github.com/LuanTenorio/learn-api/internal/user/useCase"
 	"github.com/LuanTenorio/learn-api/internal/util"
@@ -27,14 +25,13 @@ func (h *userHandlerImpl) CreateUser(c echo.Context) error {
 	userDto := new(dto.CreateUserDTO)
 
 	if err := util.BindBody(c, userDto); err != nil {
-		return c.JSON(http.StatusBadRequest, requestError.New(err.Error()))
+		return err
 	}
 
 	user, err := h.UserUC.CreateUser(c.Request().Context(), userDto)
 
 	if err != nil {
-		log.Println(err.Error())
-		return c.JSON(http.StatusInternalServerError, requestError.New(errorOnCreateUser))
+		return err
 	}
 
 	return c.JSON(http.StatusCreated, user)

@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"context"
-	"errors"
+	"net/http"
 	"time"
 
 	"github.com/LuanTenorio/learn-api/internal/auth"
 	"github.com/LuanTenorio/learn-api/internal/auth/dto"
+	"github.com/LuanTenorio/learn-api/internal/exception"
 	userEntity "github.com/LuanTenorio/learn-api/internal/user/entity"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -20,13 +21,13 @@ func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (s
 	}
 
 	if err := checkPwd(user.Password, loginDto.Password); err != nil {
-		return "", errors.New("wrong password")
+		return "", exception.New("wrong password", http.StatusUnauthorized)
 	}
 
 	token, err := createToken(&userEntity.User{Id: user.Id, Name: user.Name, Email: user.Email})
 
 	if err != nil {
-		return "", err
+		return "", exception.New("Error on create jwt token", http.StatusInternalServerError)
 	}
 
 	return token, nil

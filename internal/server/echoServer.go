@@ -51,6 +51,7 @@ func (s *echoServer) Start() {
 	s.app.Validator = &CustomValidator{validator: validator.New()}
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.Logger())
+	s.app.HTTPErrorHandler = customHTTPErrorHandler
 
 	s.bootHandlers()
 	showRoutes(s)

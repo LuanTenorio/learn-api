@@ -3,9 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
+	"net/http"
 
 	"github.com/LuanTenorio/learn-api/internal/database"
+	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/lib/pq"
 )
@@ -23,11 +24,13 @@ func (r *userPGRepository) CreateUser(ctx context.Context, user *dto.CreateUserD
 
 	//check unique constraint
 	if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
-		return -1, pgErr
+		return -1, exception.New("There is already a user with this email", http.StatusConflict)
+	} else if ok {
+		return -1, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
-		return -1, err
+		return -1, exception.NewCanceledRequest(err.Error())
 	}
 
 	var id int
@@ -45,12 +48,11 @@ func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email stri
 	})
 
 	if pgErr, ok := err.(*pq.Error); ok {
-		fmt.Println(pgErr)
-		return nil, pgErr
+		return nil, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
-		return nil, err
+		return nil, exception.NewCanceledRequest(err.Error())
 	}
 
 	user := new(dto.UserWithPwdDTO)

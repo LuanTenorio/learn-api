@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"context"
+	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/LuanTenorio/learn-api/internal/user/entity"
 )
@@ -34,5 +36,5 @@ func genHash(pwd string) (string, error) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(bPwd, bcrypt.DefaultCost)
 
-	return string(hashedPassword), err
+	return string(hashedPassword), exception.New("Internal Error on generate hash", http.StatusInternalServerError, err.Error())
 }
