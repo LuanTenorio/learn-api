@@ -1,4 +1,20 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learn-api
+    environment:
+      - PORT=${PORT}
+    ports:
+      - 3001:3000
+    depends_on:
+      - postgres
+    volumes:
+      - ./:/app/
+    networks:
+      - integration
+
   postgres:
     image: "postgres"
     environment:
@@ -9,13 +25,21 @@ services:
       - "15432:5432"
     volumes:
       - ./migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+    networks:
+      - integration
 
   pgadmin-compose:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: "lluantenorio7@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "123456"
+      PGADMIN_DEFAULT_EMAIL: "email@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
     ports:
       - "54321:80"
     depends_on:
       - postgres
+    networks:
+      - integration
+
+networks:
+  integration:
+    name: integration
