@@ -1,1 +1,1 @@
-db_url: user= dbname= sslmode= password= host=
+db_url: user=root dbname=learn sslmode=disable password=root host=postgres port=5432 timezone=America/Sao_Paulo
