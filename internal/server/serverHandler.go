@@ -1,17 +1,19 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	authHandler "github.com/LuanTenorio/learn-api/internal/auth/handler"
 	authUsecase "github.com/LuanTenorio/learn-api/internal/auth/useCase"
 	"github.com/LuanTenorio/learn-api/internal/exception"
+	"github.com/LuanTenorio/learn-api/internal/logger"
 	userHandler "github.com/LuanTenorio/learn-api/internal/user/handler"
 	userRepository "github.com/LuanTenorio/learn-api/internal/user/repository"
 	userUseCase "github.com/LuanTenorio/learn-api/internal/user/useCase"
 	"github.com/labstack/echo/v4"
 )
+
+var serverHandlerLogger = logger.New("server", "handler")
 
 func (s *echoServer) bootHandlers() {
 	s.app.GET(ApiPrefix+"/ping", func(c echo.Context) error {
@@ -54,8 +56,10 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 		respErro = exception.New("Internal server error", http.StatusInternalServerError, err.Error())
 	}
 
-	fmt.Println(err.Error())
-	fmt.Println(respErro.Trace)
+	serverHandlerLogger.Error(err.Error())
+	for _, log := range respErro.Trace {
+		serverHandlerLogger.Debug(log)
+	}
 
 	respErro.HttpException(c)
 }

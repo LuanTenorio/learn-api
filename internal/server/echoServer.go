@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/LuanTenorio/learn-api/internal/auth"
@@ -50,7 +49,10 @@ func NewEchoServer(conf *config.Config, db database.Database) Server {
 func (s *echoServer) Start() {
 	s.app.Validator = &CustomValidator{validator: validator.New()}
 	s.app.Use(middleware.Recover())
-	s.app.Use(middleware.Logger())
+	s.app.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "\033[35m[${method} - ${status}]\033[0m ${uri}: ${error}\n",
+	}))
+
 	s.app.HTTPErrorHandler = customHTTPErrorHandler
 
 	s.bootHandlers()
@@ -61,12 +63,10 @@ func (s *echoServer) Start() {
 }
 
 func showRoutes(e *echoServer) {
-	data, err := json.MarshalIndent(e.app.Routes(), "", "  ")
-	if err != nil {
-		return
+	fmt.Printf("\033[32mAll registered routes:\033[0m\n")
+	for _, router := range e.app.Routes() {
+		fmt.Printf("\033[32m[%s] %s\033[0m\n", router.Method, router.Path)
 	}
-
-	fmt.Println(string(data))
 }
 
 func getJWTMiddleware() echo.MiddlewareFunc {
