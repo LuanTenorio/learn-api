@@ -8,6 +8,7 @@ import (
 	"github.com/LuanTenorio/learn-api/internal/database"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
+	"github.com/LuanTenorio/learn-api/internal/user/entity"
 	"github.com/lib/pq"
 )
 
@@ -19,27 +20,27 @@ func NewUserPGRepository(db database.Database) UserRepository {
 	return &userPGRepository{db: db}
 }
 
-func (r *userPGRepository) CreateUser(ctx context.Context, user *dto.CreateUserDTO) (int, error) {
-	row, err := r.db.GetDb().NamedQueryContext(ctx, createUserQuery, user)
+func (r *userPGRepository) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, error) {
+	row, err := r.db.GetDb().NamedQueryContext(ctx, createUserQuery, userDto)
 
 	//check unique constraint
 	if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
-		return -1, exception.New("There is already a user with this email", http.StatusConflict)
+		return nil, exception.New("There is already a user with this email", http.StatusConflict)
 	} else if ok {
-		return -1, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
+		return nil, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
-		return -1, exception.NewCanceledRequest(err.Error())
+		return nil, exception.NewCanceledRequest(err.Error())
 	}
 
-	var id int
+	user := entity.NewUserByCreateDto(userDto, "", 0)
 
-	if row.Next() {
-		row.Scan(&id)
+	for row.Next() {
+		row.StructScan(user)
 	}
 
-	return id, nil
+	return user, nil
 }
 
 func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email string) (*dto.UserWithPwdDTO, error) {
@@ -58,7 +59,7 @@ func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email stri
 	user := new(dto.UserWithPwdDTO)
 
 	if row.Next() {
-		row.StructScan(&user)
+		row.StructScan(user)
 	}
 
 	return user, nil

@@ -15,18 +15,16 @@ func (uc *userUseCaseImpl) CreateUser(ctx context.Context, userDto *dto.CreateUs
 	hashedPassword, err := genHash(userDto.Password)
 
 	if err != nil {
-		return nil, err
+		return nil, exception.New("Internal Error on generate hash", http.StatusInternalServerError, err.Error())
 	}
 
 	userDto.Password = hashedPassword
 
-	id, err := uc.userRepository.CreateUser(ctx, userDto)
+	user, err := uc.userRepository.CreateUser(ctx, userDto)
 
 	if err != nil {
 		return nil, err
 	}
-
-	user := entity.NewUserByCreateDto(userDto, id)
 
 	return user, nil
 }
@@ -36,5 +34,5 @@ func genHash(pwd string) (string, error) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(bPwd, bcrypt.DefaultCost)
 
-	return string(hashedPassword), exception.New("Internal Error on generate hash", http.StatusInternalServerError, err.Error())
+	return string(hashedPassword), err
 }

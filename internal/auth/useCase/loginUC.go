@@ -21,7 +21,7 @@ func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (s
 	}
 
 	if err := checkPwd(user.Password, loginDto.Password); err != nil {
-		return "", exception.New("wrong password", http.StatusUnauthorized)
+		return "", exception.New("wrong password", http.StatusUnauthorized, err.Error())
 	}
 
 	token, err := createToken(&userEntity.User{Id: user.Id, Name: user.Name, Email: user.Email})
