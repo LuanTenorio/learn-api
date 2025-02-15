@@ -48,6 +48,9 @@ func NewEchoServer(conf *config.Config, db database.Database) Server {
 
 func (s *echoServer) Start() {
 	s.app.Validator = &CustomValidator{validator: validator.New()}
+	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+	}))
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "\033[35m[${method} - ${status}]\033[0m ${uri}: ${error}\n",
