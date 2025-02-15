@@ -60,6 +60,8 @@ func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email stri
 
 	if row.Next() {
 		row.StructScan(user)
+	} else {
+		return nil, exception.New("There is no user with this email", http.StatusNotFound)
 	}
 
 	return user, nil
