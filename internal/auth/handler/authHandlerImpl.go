@@ -17,6 +17,17 @@ func NewAuthHandlerImpl(uc usecase.AuthUseCase) AuthHandler {
 	return &authHandlerImpl{AuthUC: uc}
 }
 
+// @Summary		Login
+// @Description	Authenticate a user and returns a JWT token
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			request	body		dto.LoginDTO	true	"Login data"
+// @Success		200		{object}	dto.LoginResponseDTO
+// @Failure		404		{object}	exception.ExceptionImpl	"No user with this email"
+// @Failure		401		{object}	exception.ExceptionImpl	"Wrong password"
+// @Failure		500		{object}	exception.ExceptionImpl
+// @Router			/auth/login [post]
 func (h *authHandlerImpl) Login(c echo.Context) error {
 	loginDto := new(dto.LoginDTO)
 
@@ -30,5 +41,5 @@ func (h *authHandlerImpl) Login(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": token})
+	return c.JSON(http.StatusOK, &dto.LoginResponseDTO{Token: token})
 }

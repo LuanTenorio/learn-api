@@ -27,7 +27,7 @@ func (r *userPGRepository) CreateUser(ctx context.Context, userDto *dto.CreateUs
 	if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
 		return nil, exception.New("There is already a user with this email", http.StatusConflict)
 	} else if ok {
-		return nil, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
+		return nil, exception.New("Error in operation with the database", http.StatusInternalServerError, pgErr.Error(), "pg error on create user")
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
@@ -49,7 +49,7 @@ func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email stri
 	})
 
 	if pgErr, ok := err.(*pq.Error); ok {
-		return nil, exception.New("Error in operation with the database", http.StatusConflict, pgErr.Error(), "pg errorr")
+		return nil, exception.New("Error in operation with the database", http.StatusInternalServerError, pgErr.Error(), "pg error on find user")
 	}
 
 	if err != nil && !errors.Is(err, context.Canceled) {
