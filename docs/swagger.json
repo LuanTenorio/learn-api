@@ -1,0 +1,190 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API of the Learn project, which aims to organize and analyze studies",
+        "title": "Learn",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate a user and returns a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "Login data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponseDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong password",
+                        "schema": {
+                            "$ref": "#/definitions/exception.ExceptionImpl"
+                        }
+                    },
+                    "404": {
+                        "description": "No user with this email",
+                        "schema": {
+                            "$ref": "#/definitions/exception.ExceptionImpl"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/exception.ExceptionImpl"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Creates a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "New User",
+                "parameters": [
+                    {
+                        "description": "Data required for the user's acriation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.User"
+                        }
+                    },
+                    "409": {
+                        "description": "There is already a user with this email",
+                        "schema": {
+                            "$ref": "#/definitions/exception.ExceptionImpl"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/exception.ExceptionImpl"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.CreateUserDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 70,
+                    "minLength": 8
+                }
+            }
+        },
+        "dto.LoginDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 70,
+                    "minLength": 8
+                }
+            }
+        },
+        "dto.LoginResponseDTO": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "exception.ExceptionImpl": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 const ApiPrefix = "api"
@@ -60,6 +61,7 @@ func (s *echoServer) Start() {
 
 	s.bootHandlers()
 	showRoutes(s)
+	loadSwagger(s)
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
@@ -81,4 +83,8 @@ func getJWTMiddleware() echo.MiddlewareFunc {
 	}
 
 	return echojwt.WithConfig(config)
+}
+
+func loadSwagger(e *echoServer) {
+	e.app.GET("/swagger/*", echoSwagger.WrapHandler)
 }
