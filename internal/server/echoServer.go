@@ -54,7 +54,7 @@ func (s *echoServer) Start() {
 	}))
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "\033[35m[${method} - ${status}]\033[0m ${uri}: ${error}\n",
+		Format: "\033[35m[${method} - ${status}]\033[0m ${uri} ${error}\n",
 	}))
 
 	s.app.HTTPErrorHandler = customHTTPErrorHandler

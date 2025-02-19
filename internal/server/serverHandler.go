@@ -57,7 +57,7 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 	}
 
 	serverHandlerLogger.Error(err.Error())
-	for _, log := range respErro.Trace {
+	for _, log := range respErro.GetTrace() {
 		serverHandlerLogger.Debug(log)
 	}
 

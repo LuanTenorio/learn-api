@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"testing"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -14,9 +16,9 @@ const (
 )
 
 type ExceptionImpl struct {
-	Message       string   `json:"message"`
-	Code          int      `json:"code"`
-	Trace         []string `json:"-"`
+	Message       string `json:"message"`
+	Code          int    `json:"code"`
+	trace         []string
 	indexFromCall int
 }
 
@@ -41,7 +43,7 @@ func NewCanceledRequest(message string) *ExceptionImpl {
 }
 
 func (rrb *ExceptionImpl) AddTraceLog(info string) {
-	rrb.Trace = append(rrb.Trace, rrb.getInfoFromLastCallStack()+info)
+	rrb.trace = append(rrb.trace, rrb.getInfoFromLastCallStack()+info)
 }
 
 func (rrb *ExceptionImpl) Error() string {
@@ -50,6 +52,10 @@ func (rrb *ExceptionImpl) Error() string {
 
 func (rrb *ExceptionImpl) HttpException(c echo.Context) error {
 	return c.JSON(rrb.Code, rrb)
+}
+
+func (rrb *ExceptionImpl) GetTrace() []string {
+	return rrb.trace
 }
 
 func (rrb *ExceptionImpl) getInfoFromLastCallStack() string {
@@ -64,4 +70,12 @@ func (rrb *ExceptionImpl) getInfoFromLastCallStack() string {
 	errorFileName := files[len(files)-1]
 
 	return fmt.Sprintf("%s - %d: ", errorFileName, line)
+}
+
+func CheckExceptionForTest(t *testing.T, err error, expectedException ExceptionImpl) {
+	assert.Implements(t, (*Exception)(nil), err)
+	if exeption, ok := err.(*ExceptionImpl); assert.True(t, ok) {
+		assert.Equal(t, exeption.Code, expectedException.Code)
+		assert.Equal(t, exeption.Message, expectedException.Message)
+	}
 }

@@ -36,7 +36,7 @@ func (r *userPGRepository) CreateUser(ctx context.Context, userDto *dto.CreateUs
 
 	user := entity.NewUserByCreateDto(userDto, "", 0)
 
-	for row.Next() {
+	if row.Next() {
 		row.StructScan(user)
 	}
 

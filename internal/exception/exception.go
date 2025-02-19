@@ -6,4 +6,5 @@ type Exception interface {
 	AddTraceLog(info string)
 	Error() string
 	HttpException(c echo.Context) error
+	GetTrace() []string
 }
