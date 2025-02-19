@@ -1,0 +1,7 @@
+output: ./test/mocks
+dir: ./internal
+inpackage: false
+testonly: false
+recursive: true
+exclude: [internal/config, internal/server, internal/database, internal/exception, internal/logger]
+outpkg: mocks   
