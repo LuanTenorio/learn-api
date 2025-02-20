@@ -24,6 +24,7 @@ func NewAuthHandlerImpl(uc usecase.AuthUseCase) AuthHandler {
 // @Produce		json
 // @Param			request	body		dto.LoginDTO	true	"Login data"
 // @Success		200		{object}	dto.LoginResponseDTO
+// @Failure		400		{object}	exception.ExceptionImpl "Incompatible body"
 // @Failure		404		{object}	exception.ExceptionImpl	"No user with this email"
 // @Failure		401		{object}	exception.ExceptionImpl	"Wrong password"
 // @Failure		500		{object}	exception.ExceptionImpl

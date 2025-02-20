@@ -4,9 +4,13 @@ import (
 	"net/http"
 
 	authHandler "github.com/LuanTenorio/learn-api/internal/auth/handler"
+	"github.com/LuanTenorio/learn-api/internal/auth/middleware"
 	authUsecase "github.com/LuanTenorio/learn-api/internal/auth/useCase"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/logger"
+	subjectHandler "github.com/LuanTenorio/learn-api/internal/subject/handler"
+	subjectRepository "github.com/LuanTenorio/learn-api/internal/subject/repository"
+	subjectUseCase "github.com/LuanTenorio/learn-api/internal/subject/usecase"
 	userHandler "github.com/LuanTenorio/learn-api/internal/user/handler"
 	userRepository "github.com/LuanTenorio/learn-api/internal/user/repository"
 	userUseCase "github.com/LuanTenorio/learn-api/internal/user/useCase"
@@ -22,12 +26,13 @@ func (s *echoServer) bootHandlers() {
 
 	userRepo := bootUserHandler(s)
 	bootAuthHandler(s, userRepo)
+	bootSubjectHandler(s)
 }
 
 func bootUserHandler(s *echoServer) userRepository.UserRepository {
 	userRepo := userRepository.NewUserPGRepository(s.db)
 	userUC := userUseCase.NewUserUseCaseImpl(userRepo)
-	userHand := userHandler.NewUserUseCaseImpl(userUC)
+	userHand := userHandler.NewUserHandlerImpl(userUC)
 
 	userRoutes := s.app.Group(ApiPrefix + "/users")
 
@@ -43,6 +48,16 @@ func bootAuthHandler(s *echoServer, userRepo userRepository.UserRepository) {
 	authRoutes := s.app.Group(ApiPrefix + "/auth")
 
 	authRoutes.POST("/login", authHand.Login)
+}
+
+func bootSubjectHandler(s *echoServer) {
+	subjectRepo := subjectRepository.New(s.db)
+	subjectUC := subjectUseCase.New(subjectRepo)
+	subjectHand := subjectHandler.New(subjectUC)
+
+	subjectRoutes := s.app.Group(ApiPrefix+"/subjects", middleware.AuthMiddleware)
+
+	subjectRoutes.POST("", subjectHand.Create)
 }
 
 func customHTTPErrorHandler(err error, c echo.Context) {

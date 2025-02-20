@@ -1,9 +1,11 @@
 package database
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/LuanTenorio/learn-api/internal/config"
+	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -32,4 +34,13 @@ func NewPostgresDatabase(conf *config.Config) Database {
 
 func (p *postgresDatabase) GetDb() *sqlx.DB {
 	return dbInstance.Db
+}
+
+func StructScanOrError(row *sqlx.Rows, data interface{}) error {
+	if row.Next() {
+		row.StructScan(data)
+		return nil
+	} else {
+		return exception.New("Db internal error", http.StatusInternalServerError)
+	}
 }

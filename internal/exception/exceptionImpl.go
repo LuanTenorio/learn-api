@@ -1,6 +1,8 @@
 package exception
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -78,4 +80,14 @@ func CheckExceptionForTest(t *testing.T, err error, expectedException ExceptionI
 		assert.Equal(t, exeption.Code, expectedException.Code)
 		assert.Equal(t, exeption.Message, expectedException.Message)
 	}
+}
+
+func CheckDbException(err error) error {
+	if err == nil {
+		return nil
+	} else if errors.Is(err, context.Canceled) {
+		return NewCanceledRequest(err.Error())
+	}
+
+	return New("Db internal error", http.StatusInternalServerError, err.Error())
 }
