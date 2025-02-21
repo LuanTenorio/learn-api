@@ -36,7 +36,7 @@ func (p *postgresDatabase) GetDb() *sqlx.DB {
 	return dbInstance.Db
 }
 
-func StructScanOrError(row *sqlx.Rows, data interface{}) error {
+func StructScanOrError(row *sqlx.Rows, data interface{}) exception.Exception {
 	if row.Next() {
 		row.StructScan(data)
 		return nil

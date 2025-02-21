@@ -44,8 +44,9 @@ func NewCanceledRequest(message string) *ExceptionImpl {
 	return New("Request canceled", http.StatusBadRequest, message)
 }
 
-func (rrb *ExceptionImpl) AddTraceLog(info string) {
+func (rrb *ExceptionImpl) AddTraceLog(info string) Exception {
 	rrb.trace = append(rrb.trace, rrb.getInfoFromLastCallStack()+info)
+	return rrb
 }
 
 func (rrb *ExceptionImpl) Error() string {
@@ -82,7 +83,7 @@ func CheckExceptionForTest(t *testing.T, err error, expectedException ExceptionI
 	}
 }
 
-func CheckDbException(err error) error {
+func CheckDbException(err error) Exception {
 	if err == nil {
 		return nil
 	} else if errors.Is(err, context.Canceled) {

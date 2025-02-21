@@ -13,7 +13,7 @@ type userHandlerImpl struct {
 	UserUC usecase.UserUseCase
 }
 
-func NewUserUseCaseImpl(uc usecase.UserUseCase) UserHandler {
+func NewUserHandlerImpl(uc usecase.UserUseCase) UserHandler {
 	return &userHandlerImpl{UserUC: uc}
 }
 
@@ -23,8 +23,9 @@ func NewUserUseCaseImpl(uc usecase.UserUseCase) UserHandler {
 // @Accept			json
 // @Produce		json
 // @Param			request	body		dto.CreateUserDTO	true	"Data required for the user's acriation"
-// @Success		200		{object}	entity.User
+// @Success		201		{object}	entity.User
 // @Failure		409		{object}	exception.ExceptionImpl	"There is already a user with this email"
+// @Failure		400		{object}	exception.ExceptionImpl "Incompatible body"
 // @Failure		500		{object}	exception.ExceptionImpl
 // @Router			/users [post]
 func (h *userHandlerImpl) CreateUser(c echo.Context) error {
