@@ -32,7 +32,7 @@ func NewAuthHandlerImpl(uc usecase.AuthUseCase) AuthHandler {
 func (h *authHandlerImpl) Login(c echo.Context) error {
 	loginDto := new(dto.LoginDTO)
 
-	if err := util.BindBody(c, loginDto); err != nil {
+	if err := util.BindDataRequest(c, loginDto); err != nil {
 		return err
 	}
 

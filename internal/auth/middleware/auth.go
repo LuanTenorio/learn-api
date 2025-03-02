@@ -24,7 +24,7 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return exception.New("Invalid token", http.StatusUnauthorized, err.Error())
 		}
 
-		c.Set("user", claims)
+		c.Set("claims", claims)
 
 		return next(c)
 	}
