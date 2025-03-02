@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/LuanTenorio/learn-api/internal/auth"
+	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/subject/dto"
 	"github.com/LuanTenorio/learn-api/internal/util"
 	"github.com/labstack/echo/v4"
@@ -23,9 +24,14 @@ import (
 // @Router			/subjects [post]
 func (s *subjectHandlerImpl) Create(c echo.Context) error {
 	subjectDto := new(dto.CreateSubjectDTO)
-	fmt.Println("passando")
 
-	if err := util.BindBody(c, subjectDto); err != nil {
+	if claims, ok := c.Get("claims").(*auth.JwtCustomClaims); ok {
+		subjectDto.UserId = claims.User.Id
+	} else {
+		return exception.New("Internal Error", http.StatusInternalServerError, "Error when taking the jwt id")
+	}
+
+	if err := util.BindDataRequest(c, subjectDto); err != nil {
 		return err
 	}
 

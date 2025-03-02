@@ -31,7 +31,7 @@ func NewUserHandlerImpl(uc usecase.UserUseCase) UserHandler {
 func (h *userHandlerImpl) CreateUser(c echo.Context) error {
 	userDto := new(dto.CreateUserDTO)
 
-	if err := util.BindBody(c, userDto); err != nil {
+	if err := util.BindDataRequest(c, userDto); err != nil {
 		return err
 	}
 

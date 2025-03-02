@@ -58,6 +58,7 @@ func bootSubjectHandler(s *echoServer) {
 	subjectRoutes := s.app.Group(ApiPrefix+"/subjects", middleware.AuthMiddleware)
 
 	subjectRoutes.POST("", subjectHand.Create)
+	subjectRoutes.GET("", subjectHand.FindMany)
 }
 
 func customHTTPErrorHandler(err error, c echo.Context) {
