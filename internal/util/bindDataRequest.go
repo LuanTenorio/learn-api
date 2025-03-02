@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func BindBody[T any](c echo.Context, dto T) exception.Exception {
+func BindDataRequest[T interface{}](c echo.Context, dto T) exception.Exception {
 	if err := c.Bind(dto); err != nil {
 		return exception.New(exception.IncompatibleBody, http.StatusBadRequest, err.Error())
 	} else if err := c.Validate(dto); err != nil {
