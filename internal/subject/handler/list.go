@@ -12,8 +12,8 @@ import (
 // @Tags			Subject
 // @Accept			json
 // @Produce		json
-// @Param			request	query		pagination.PaginationRequestDTO	true	"Optional data for pagination"
-// @Success		200		{object}	pagination.PaginationResponseDTO
+// @Param			request	query		dto.PaginationRequestDTO	true	"Optional data for pagination"
+// @Success		200		{object}	dto.PaginationResponseDTO
 // @Failure		401		{object}	exception.ExceptionImpl "Unauthorized user"
 // @Failure		500		{object}	exception.ExceptionImpl
 // @Router			/subjects [get]

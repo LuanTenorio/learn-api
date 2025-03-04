@@ -1,5 +1,14 @@
 basePath: /api
 definitions:
+  dto.CreateSubjectDTO:
+    properties:
+      name:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
   dto.CreateUserDTO:
     properties:
       email:
@@ -35,6 +44,32 @@ definitions:
     properties:
       token:
         type: string
+    type: object
+  dto.PaginationResponseDTO:
+    properties:
+      data:
+        type: object
+      limit:
+        type: integer
+      page:
+        type: integer
+      pages:
+        type: integer
+      total_items:
+        type: integer
+    type: object
+  entity.Subject:
+    properties:
+      avarage:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      total_time:
+        type: integer
     type: object
   entity.User:
     properties:
@@ -79,6 +114,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.LoginResponseDTO'
+        "400":
+          description: Incompatible body
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
         "401":
           description: Wrong password
           schema:
@@ -94,6 +133,74 @@ paths:
       summary: Login
       tags:
       - Auth
+  /subjects:
+    get:
+      consumes:
+      - application/json
+      description: List many subjects
+      parameters:
+      - in: query
+        maximum: 50
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginationResponseDTO'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+      summary: List subjects
+      tags:
+      - Subject
+    post:
+      consumes:
+      - application/json
+      description: Creates a new subject
+      parameters:
+      - description: Data required for the subject's acriation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubjectDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Subject'
+        "400":
+          description: Incompatible body
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+        "409":
+          description: There is already a subject with this name
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
+      summary: New Subject
+      tags:
+      - Subject
   /users:
     post:
       consumes:
@@ -109,10 +216,14 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/entity.User'
+        "400":
+          description: Incompatible body
+          schema:
+            $ref: '#/definitions/exception.ExceptionImpl'
         "409":
           description: There is already a user with this email
           schema:
