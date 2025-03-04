@@ -5,7 +5,7 @@ import (
 
 	authHandler "github.com/LuanTenorio/learn-api/internal/auth/handler"
 	"github.com/LuanTenorio/learn-api/internal/auth/middleware"
-	authUsecase "github.com/LuanTenorio/learn-api/internal/auth/useCase"
+	authUsecase "github.com/LuanTenorio/learn-api/internal/auth/usecase"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/logger"
 	subjectHandler "github.com/LuanTenorio/learn-api/internal/subject/handler"
@@ -13,7 +13,7 @@ import (
 	subjectUseCase "github.com/LuanTenorio/learn-api/internal/subject/usecase"
 	userHandler "github.com/LuanTenorio/learn-api/internal/user/handler"
 	userRepository "github.com/LuanTenorio/learn-api/internal/user/repository"
-	userUseCase "github.com/LuanTenorio/learn-api/internal/user/useCase"
+	userUseCase "github.com/LuanTenorio/learn-api/internal/user/usecase"
 	"github.com/labstack/echo/v4"
 )
 

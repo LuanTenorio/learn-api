@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/LuanTenorio/learn-api/internal/auth/dto"
-	usecase "github.com/LuanTenorio/learn-api/internal/auth/useCase"
+	usecase "github.com/LuanTenorio/learn-api/internal/auth/usecase"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	userDto "github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/LuanTenorio/learn-api/test/mocks"

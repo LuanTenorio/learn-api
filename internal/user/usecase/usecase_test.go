@@ -8,7 +8,7 @@ import (
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/LuanTenorio/learn-api/internal/user/entity"
-	usecase "github.com/LuanTenorio/learn-api/internal/user/useCase"
+	usecase "github.com/LuanTenorio/learn-api/internal/user/usecase"
 	"github.com/LuanTenorio/learn-api/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

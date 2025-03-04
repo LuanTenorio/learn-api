@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
-	usecase "github.com/LuanTenorio/learn-api/internal/user/useCase"
+	usecase "github.com/LuanTenorio/learn-api/internal/user/usecase"
 	"github.com/LuanTenorio/learn-api/internal/util"
 	"github.com/labstack/echo/v4"
 )
