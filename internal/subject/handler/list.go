@@ -7,18 +7,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// @Summary		New Subject
-// @Description	Creates a new subject
+// @Summary		List subjects
+// @Description	List many subjects
 // @Tags			Subject
 // @Accept			json
 // @Produce		json
-// @Param			request	body		dto.CreateSubjectDTO	true	"Data required for the subject's acriation"
-// @Success		201		{object}	entity.Subject
-// @Failure		409		{object}	exception.ExceptionImpl	"There is already a subject with this name"
-// @Failure		400		{object}	exception.ExceptionImpl "Incompatible body"
+// @Param			request	query		pagination.PaginationRequestDTO	true	"Optional data for pagination"
+// @Success		200		{object}	pagination.PaginationResponseDTO
 // @Failure		401		{object}	exception.ExceptionImpl "Unauthorized user"
 // @Failure		500		{object}	exception.ExceptionImpl
-// @Router			/subjects [post]
+// @Router			/subjects [get]
 func (s *subjectHandlerImpl) List(c echo.Context) error {
 	pgt, userId, err := pagination.GetPaginationAndUserId(c)
 
@@ -32,5 +30,5 @@ func (s *subjectHandlerImpl) List(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, pgtResp)
+	return c.JSON(http.StatusOK, pgtResp)
 }
