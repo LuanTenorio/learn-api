@@ -8,8 +8,8 @@ import (
 	"github.com/LuanTenorio/learn-api/internal/pagination/dto"
 )
 
-func (u *subjectUsecaseImpl) FindMany(ctx context.Context, pagination pagination.Pagination, userId int) (*dto.PaginationResponseDTO, exception.Exception) {
-	subjects, tot, err := u.subjectRepo.FindMany(ctx, pagination, userId)
+func (u *subjectUsecaseImpl) List(ctx context.Context, pagination pagination.Pagination, userId int) (*dto.PaginationResponseDTO, exception.Exception) {
+	subjects, tot, err := u.subjectRepo.List(ctx, pagination, userId)
 
 	if err != nil {
 		return nil, err

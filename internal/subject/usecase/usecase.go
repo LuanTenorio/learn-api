@@ -12,5 +12,5 @@ import (
 
 type SubjectUsecase interface {
 	Create(ctx context.Context, subjectDto *dto.CreateSubjectDTO) (*entity.Subject, exception.Exception)
-	FindMany(ctx context.Context, pagination pagination.Pagination, userId int) (*paginationDto.PaginationResponseDTO, exception.Exception)
+	List(ctx context.Context, pagination pagination.Pagination, userId int) (*paginationDto.PaginationResponseDTO, exception.Exception)
 }

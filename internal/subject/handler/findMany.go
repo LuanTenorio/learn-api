@@ -19,14 +19,14 @@ import (
 // @Failure		401		{object}	exception.ExceptionImpl "Unauthorized user"
 // @Failure		500		{object}	exception.ExceptionImpl
 // @Router			/subjects [post]
-func (s *subjectHandlerImpl) FindMany(c echo.Context) error {
+func (s *subjectHandlerImpl) List(c echo.Context) error {
 	pgt, userId, err := pagination.GetPaginationAndUserId(c)
 
 	if err != nil {
 		return err
 	}
 
-	pgtResp, err := s.usecase.FindMany(c.Request().Context(), pgt, userId)
+	pgtResp, err := s.usecase.List(c.Request().Context(), pgt, userId)
 
 	if err != nil {
 		return err

@@ -12,5 +12,5 @@ import (
 type SubjectRepository interface {
 	Create(ctx context.Context, subjectDto *dto.CreateSubjectDTO) (*entity.Subject, exception.Exception)
 	ExistSubjectByName(ctx context.Context, name string, userId int) (bool, exception.Exception)
-	FindMany(ctx context.Context, pagination pagination.Pagination, userId int) ([]*entity.Subject, int, exception.Exception)
+	List(ctx context.Context, pagination pagination.Pagination, userId int) ([]*entity.Subject, int, exception.Exception)
 }

@@ -41,7 +41,7 @@ func (r *SubjectPgRepository) ExistSubjectByName(ctx context.Context, name strin
 	return true, nil
 }
 
-func (r *SubjectPgRepository) FindMany(ctx context.Context, pagination pagination.Pagination, userId int) ([]*entity.Subject, int, exception.Exception) {
+func (r *SubjectPgRepository) List(ctx context.Context, pagination pagination.Pagination, userId int) ([]*entity.Subject, int, exception.Exception) {
 	tx, err := r.db.GetDb().Begin(ctx)
 
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *SubjectPgRepository) FindMany(ctx context.Context, pagination paginatio
 
 	qtx := r.db.GetQueries().WithTx(tx)
 
-	subjectsResp, listErr := list(ctx, qtx, pagination, userId)
+	subjectsResp, listErr := findMany(ctx, qtx, pagination, userId)
 
 	if listErr != nil {
 		tx.Rollback(ctx)
@@ -71,7 +71,7 @@ func (r *SubjectPgRepository) FindMany(ctx context.Context, pagination paginatio
 	return subjectsResp, tot, nil
 }
 
-func list(ctx context.Context, qtx *sqlc.Queries, pagination pagination.Pagination, userId int) ([]*entity.Subject, exception.Exception) {
+func findMany(ctx context.Context, qtx *sqlc.Queries, pagination pagination.Pagination, userId int) ([]*entity.Subject, exception.Exception) {
 	paginationDto := sqlc.ListSubjectsParams{UserID: int32(userId), Limit: int32(pagination.Limit()), Offset: int32(pagination.Offset())}
 	subjects, err := qtx.ListSubjects(ctx, paginationDto)
 
