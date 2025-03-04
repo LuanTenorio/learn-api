@@ -40,6 +40,10 @@ func New(message string, code int, logs ...string) *ExceptionImpl {
 	return exc
 }
 
+func NewDB(log string) *ExceptionImpl {
+	return New("Internal Db error", http.StatusInternalServerError, log)
+}
+
 func NewCanceledRequest(message string) *ExceptionImpl {
 	return New("Request canceled", http.StatusBadRequest, message)
 }
@@ -90,5 +94,5 @@ func CheckDbException(err error) Exception {
 		return NewCanceledRequest(err.Error())
 	}
 
-	return New("Db internal error", http.StatusInternalServerError, err.Error())
+	return NewDB(err.Error())
 }

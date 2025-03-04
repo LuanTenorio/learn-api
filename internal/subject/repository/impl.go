@@ -2,15 +2,13 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"net/http"
 
 	"github.com/LuanTenorio/learn-api/internal/database"
+	"github.com/LuanTenorio/learn-api/internal/database/sqlc"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/pagination"
 	"github.com/LuanTenorio/learn-api/internal/subject/dto"
 	"github.com/LuanTenorio/learn-api/internal/subject/entity"
-	"github.com/jmoiron/sqlx"
 )
 
 type SubjectPgRepository struct {
@@ -22,77 +20,82 @@ func New(db database.Database) SubjectRepository {
 }
 
 func (r *SubjectPgRepository) Create(ctx context.Context, subjectDto *dto.CreateSubjectDTO) (*entity.Subject, exception.Exception) {
-	row, err := r.db.GetDb().NamedQueryContext(ctx, createSubjectQuery, subjectDto)
-
-	subject := new(entity.Subject)
+	subject, err := r.db.GetQueries().CreateSubject(ctx, sqlc.CreateSubjectParams{Name: subjectDto.Name, UserID: int32(subjectDto.UserId)})
 
 	if pgErr := exception.CheckDbException(err); pgErr != nil {
 		return nil, pgErr.AddTraceLog("Exception in the database")
-	} else if scanErr := database.StructScanOrError(row, subject); scanErr != nil {
-		return nil, scanErr.AddTraceLog("Erro on parse subjcet struct")
 	}
 
-	return subject, nil
+	return entity.M2E(&subject), nil
 }
 
 func (r *SubjectPgRepository) ExistSubjectByName(ctx context.Context, name string, userId int) (bool, exception.Exception) {
-	var id int
-	err := r.db.GetDb().GetContext(ctx, &id, findIdByNameQuery, name, userId)
+	_, err := r.db.GetQueries().FindSubjectByIdAndName(ctx, sqlc.FindSubjectByIdAndNameParams{Name: name, UserID: 83})
 
-	if err == sql.ErrNoRows {
+	if err == database.ErrNoRows {
 		return false, nil
-	}
-
-	if pgErr := exception.CheckDbException(err); pgErr != nil {
+	} else if pgErr := exception.CheckDbException(err); pgErr != nil {
 		return false, pgErr.AddTraceLog("Exception in the database")
 	}
 
 	return true, nil
 }
 
-func (r *SubjectPgRepository) FindMany(ctx context.Context, pagination pagination.Pagination, userId int) ([]entity.Subject, int, exception.Exception) {
-	var subjects []entity.Subject
-
-	tx, err := r.db.GetDb().Beginx()
+func (r *SubjectPgRepository) FindMany(ctx context.Context, pagination pagination.Pagination, userId int) ([]*entity.Subject, int, exception.Exception) {
+	tx, err := r.db.GetDb().Begin(ctx)
 
 	if err != nil {
-		return nil, 0, exception.New("Internal db error", http.StatusInternalServerError, "Error when opening transaction", err.Error())
+		return nil, 0, exception.NewDB(err.Error())
 	}
 
-	tot, totErr := findTotalItems(ctx, tx, userId)
+	qtx := r.db.GetQueries().WithTx(tx)
+
+	subjectsResp, listErr := list(ctx, qtx, pagination, userId)
+
+	if listErr != nil {
+		tx.Rollback(ctx)
+		return nil, 0, listErr
+	}
+
+	tot, totErr := findTotalItems(ctx, qtx, userId)
 
 	if totErr != nil {
-		return nil, 0, totErr.AddTraceLog("Repository: Exception in the database")
+		tx.Rollback(ctx)
+		return nil, 0, totErr
 	}
 
-	err = tx.SelectContext(ctx, &subjects, findPaginationQuery, pagination.Limit(), pagination.Offset())
-
-	if err == sql.ErrNoRows {
-		return nil, 0, nil
-	} else if pgErr := exception.CheckDbException(err); pgErr != nil {
-		return nil, 0, pgErr.AddTraceLog("Repository: Exception in the database")
+	if err := tx.Commit(ctx); err != nil {
+		return nil, 0, exception.NewDB(err.Error())
 	}
 
-	err = tx.Commit()
-
-	if err != nil {
-		return nil, 0, exception.New("Internal db error", http.StatusInternalServerError, "Error when commit transaction", err.Error())
-	}
-
-	return subjects, tot, nil
+	return subjectsResp, tot, nil
 }
 
-func findTotalItems(ctx context.Context, tx *sqlx.Tx, userId int) (int, exception.Exception) {
-	var total int
-	err := tx.GetContext(ctx, &total, totalItemsQuery, userId)
+func list(ctx context.Context, qtx *sqlc.Queries, pagination pagination.Pagination, userId int) ([]*entity.Subject, exception.Exception) {
+	paginationDto := sqlc.ListSubjectsParams{UserID: int32(userId), Limit: int32(pagination.Limit()), Offset: int32(pagination.Offset())}
+	subjects, err := qtx.ListSubjects(ctx, paginationDto)
 
-	if err == sql.ErrNoRows {
-		return 0, nil
+	if err == database.ErrNoRows {
+		return nil, nil
+	} else if pgErr := exception.CheckDbException(err); pgErr != nil {
+		return nil, pgErr.AddTraceLog("Repository: Exception in the database")
 	}
 
-	if pgErr := exception.CheckDbException(err); pgErr != nil {
-		return 0, pgErr.AddTraceLog("Exception in the database")
+	subjectsResponse := make([]*entity.Subject, len(subjects))
+
+	for i, s := range subjects {
+		subjectsResponse[i] = entity.M2E(&s)
 	}
 
-	return total, nil
+	return subjectsResponse, nil
+}
+
+func findTotalItems(ctx context.Context, qtx *sqlc.Queries, userId int) (int, exception.Exception) {
+	tot, err := qtx.TotalSubjectsByUser(ctx, int32(userId))
+
+	if err != nil {
+		return 0, exception.NewDB(err.Error())
+	}
+
+	return int(tot), nil
 }

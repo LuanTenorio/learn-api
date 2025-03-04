@@ -1,6 +1,9 @@
 package entity
 
-import "github.com/LuanTenorio/learn-api/internal/user/dto"
+import (
+	"github.com/LuanTenorio/learn-api/internal/database/sqlc"
+	"github.com/LuanTenorio/learn-api/internal/user/dto"
+)
 
 type User struct {
 	Id        int    `json:"id"`
@@ -15,5 +18,14 @@ func NewUserByCreateDto(u *dto.CreateUserDTO, createdAt string, id int) *User {
 		Name:      u.Name,
 		Email:     u.Email,
 		CreatedAt: createdAt,
+	}
+}
+
+func M2E(u *sqlc.CreateUserRow) *User {
+	return &User{
+		Id:        int(u.ID),
+		Name:      u.Name,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt.Time.String(),
 	}
 }

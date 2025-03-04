@@ -2,14 +2,14 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/LuanTenorio/learn-api/internal/database"
+	"github.com/LuanTenorio/learn-api/internal/database/sqlc"
 	"github.com/LuanTenorio/learn-api/internal/exception"
 	"github.com/LuanTenorio/learn-api/internal/user/dto"
 	"github.com/LuanTenorio/learn-api/internal/user/entity"
-	"github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type userPGRepository struct {
@@ -20,49 +20,27 @@ func NewUserPGRepository(db database.Database) UserRepository {
 	return &userPGRepository{db: db}
 }
 
-func (r *userPGRepository) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, error) {
-	row, err := r.db.GetDb().NamedQueryContext(ctx, createUserQuery, userDto)
+func (r *userPGRepository) CreateUser(ctx context.Context, u *dto.CreateUserDTO) (*entity.User, exception.Exception) {
+	user, err := r.db.GetQueries().CreateUser(ctx, sqlc.CreateUserParams{Name: u.Name, Email: u.Email, Password: u.Password})
 
 	//check unique constraint
-	if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" {
+	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
 		return nil, exception.New("There is already a user with this email", http.StatusConflict)
-	} else if ok {
-		return nil, exception.New("Error in operation with the database", http.StatusInternalServerError, pgErr.Error(), "pg error on create user")
+	} else if pgErr := exception.CheckDbException(err); pgErr != nil {
+		return nil, pgErr.AddTraceLog("Exception in the database")
 	}
 
-	if err != nil && !errors.Is(err, context.Canceled) {
-		return nil, exception.NewCanceledRequest(err.Error())
-	}
-
-	user := entity.NewUserByCreateDto(userDto, "", 0)
-
-	if row.Next() {
-		row.StructScan(user)
-	}
-
-	return user, nil
+	return entity.M2E(&user), nil
 }
 
-func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email string) (*dto.UserWithPwdDTO, error) {
-	row, err := r.db.GetDb().NamedQueryContext(ctx, selectUserWithEmailByPwdQuery, map[string]interface{}{
-		"email": email,
-	})
+func (r *userPGRepository) FindUserAndPwdByEmail(ctx context.Context, email string) (*dto.UserWithPwdDTO, exception.Exception) {
+	user, err := r.db.GetQueries().FindUserByEmail(ctx, email)
 
-	if pgErr, ok := err.(*pq.Error); ok {
-		return nil, exception.New("Error in operation with the database", http.StatusInternalServerError, pgErr.Error(), "pg error on find user")
+	if err == database.ErrNoRows {
+		return nil, exception.New("User with this email was not found", http.StatusNotFound, err.Error())
+	} else if pgErr := exception.CheckDbException(err); pgErr != nil {
+		return nil, pgErr.AddTraceLog("Exception in the database")
 	}
 
-	if err != nil && !errors.Is(err, context.Canceled) {
-		return nil, exception.NewCanceledRequest(err.Error())
-	}
-
-	user := new(dto.UserWithPwdDTO)
-
-	if row.Next() {
-		row.StructScan(user)
-	} else {
-		return nil, exception.New("There is no user with this email", http.StatusNotFound)
-	}
-
-	return user, nil
+	return &dto.UserWithPwdDTO{Id: int(user.ID), Name: user.Name, Email: user.Email, Password: user.Password, CreatedAt: user.CreatedAt.Time.String()}, nil
 }

@@ -11,11 +11,11 @@ import (
 	"github.com/LuanTenorio/learn-api/internal/user/entity"
 )
 
-func (uc *userUseCaseImpl) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, error) {
-	hashedPassword, err := genHash(userDto.Password)
+func (uc *userUseCaseImpl) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, exception.Exception) {
+	hashedPassword, hashErr := genHash(userDto.Password)
 
-	if err != nil {
-		return nil, exception.New("Internal Error on generate hash", http.StatusInternalServerError, err.Error())
+	if hashErr != nil {
+		return nil, exception.New("Internal Error on generate hash", http.StatusInternalServerError, hashErr.Error())
 	}
 
 	userDto.Password = hashedPassword

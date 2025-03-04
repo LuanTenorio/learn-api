@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (string, error) {
+func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (string, exception.Exception) {
 	user, err := uc.userRepository.FindUserAndPwdByEmail(ctx, loginDto.Email)
 
 	if err != nil {
@@ -24,9 +24,11 @@ func (uc *authUseCaseImpl) Login(ctx context.Context, loginDto *dto.LoginDTO) (s
 		return "", exception.New("wrong password", http.StatusUnauthorized, err.Error())
 	}
 
-	token, err := createToken(&userEntity.User{Id: user.Id, Name: user.Name, Email: user.Email})
+	usr := &userEntity.User{Id: user.Id, Name: user.Name, Email: user.Email, CreatedAt: user.CreatedAt}
 
-	if err != nil {
+	token, tokenErr := createToken(usr)
+
+	if tokenErr != nil {
 		return "", exception.New("Error on create jwt token", http.StatusInternalServerError)
 	}
 
