@@ -8,6 +8,8 @@ import (
 	dto "github.com/LuanTenorio/learn-api/internal/user/dto"
 	entity "github.com/LuanTenorio/learn-api/internal/user/entity"
 
+	exception "github.com/LuanTenorio/learn-api/internal/exception"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -17,7 +19,7 @@ type UserUseCase struct {
 }
 
 // CreateUser provides a mock function with given fields: ctx, userDto
-func (_m *UserUseCase) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, error) {
+func (_m *UserUseCase) CreateUser(ctx context.Context, userDto *dto.CreateUserDTO) (*entity.User, exception.Exception) {
 	ret := _m.Called(ctx, userDto)
 
 	if len(ret) == 0 {
@@ -25,8 +27,8 @@ func (_m *UserUseCase) CreateUser(ctx context.Context, userDto *dto.CreateUserDT
 	}
 
 	var r0 *entity.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *dto.CreateUserDTO) (*entity.User, error)); ok {
+	var r1 exception.Exception
+	if rf, ok := ret.Get(0).(func(context.Context, *dto.CreateUserDTO) (*entity.User, exception.Exception)); ok {
 		return rf(ctx, userDto)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, *dto.CreateUserDTO) *entity.User); ok {
@@ -37,10 +39,12 @@ func (_m *UserUseCase) CreateUser(ctx context.Context, userDto *dto.CreateUserDT
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *dto.CreateUserDTO) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *dto.CreateUserDTO) exception.Exception); ok {
 		r1 = rf(ctx, userDto)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(exception.Exception)
+		}
 	}
 
 	return r0, r1
